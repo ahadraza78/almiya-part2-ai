@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Almiya Part 2 AI</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      color: #172033;
+    }
+
+    .header {
+      background: #ffffff;
+      padding: 18px 7%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .login-btn {
+      border: none;
+      background: #172033;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .hero {
+      max-width: 1100px;
+      margin: 50px auto 30px;
+      padding: 0 20px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 42px;
+      margin-bottom: 12px;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: #667085;
+      margin-bottom: 35px;
+    }
+
+    .cards {
+      max-width: 1000px;
+      margin: auto;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 30px;
+      text-align: right;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    }
+
+    .icon {
+      font-size: 35px;
+      margin-bottom: 15px;
+    }
+
+    .card h2 {
+      font-size: 21px;
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      color: #667085;
+      line-height: 1.6;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 40px 20px;
+      color: #667085;
+      font-size: 14px;
+    }
+
+    @media (max-width: 700px) {
+      .cards {
+        grid-template-columns: 1fr;
+      }
+
+      .hero h1 {
+        font-size: 30px;
+      }
+
+      .header {
+        padding: 15px 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="header">
+    <div class="logo">🎓 Almiya Part 2 AI</div>
+    <button class="login-btn" onclick="loginMessage()">Login</button>
+  </header>
+
+  <section class="hero">
+    <h1>Almiya Part 2</h1>
+    <p>امتحان کی تیاری کے لیے آپ کا AI Study Companion</p>
+  </section>
+
+  <section class="cards">
+
+    <div class="card" onclick="featureMessage('Study with AI')">
+      <div class="icon">📚</div>
+      <h2>Study with AI</h2>
+      <p>اپنے نصاب کے مطابق موضوعات کو سمجھیں اور AI سے سوال کریں۔</p>
+    </div>
+
+    <div class="card" onclick="featureMessage('MCQs Practice')">
+      <div class="icon">❓</div>
+      <h2>MCQs Practice</h2>
+      <p>اپنے نصاب کے مطابق MCQs حل کریں اور اپنی تیاری چیک کریں۔</p>
+    </div>
+
+    <div class="card" onclick="featureMessage('Questions Practice')">
+      <div class="icon">✍️</div>
+      <h2>Questions Practice</h2>
+      <p>Short اور Long Questions کی practice کریں۔</p>
+    </div>
+
+    <div class="card" onclick="featureMessage('Mock Test')">
+      <div class="icon">📝</div>
+      <h2>Mock Test</h2>
+      <p>امتحان کی طرح مکمل Mock Test attempt کریں۔</p>
+    </div>
+
+    <div class="card" onclick="featureMessage('My Progress')">
+      <div class="icon">📊</div>
+      <h2>My Progress</h2>
+      <p>اپنی preparation، score اور weak areas دیکھیں۔</p>
+    </div>
+
+    <div class="card" onclick="featureMessage('AI Tutor')">
+      <div class="icon">🤖</div>
+      <h2>AI Tutor</h2>
+      <p>اپنے study material سے متعلق سوالات AI سے پوچھیں۔</p>
+    </div>
+
+  </section>
+
+  <footer class="footer">
+    Almiya Part 2 AI • Exam Preparation Platform
+  </footer>
+
+  <script>
+    function featureMessage(feature) {
+      alert(feature + " کا module اگلے مرحلے میں activate کیا جائے گا۔");
+    }
+
+    function loginMessage() {
+      alert("Student Login اگلے مرحلے میں Supabase کے ساتھ connect کیا جائے گا۔");
+    }
+  </script>
+
+</body>
+</html>
