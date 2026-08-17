@@ -6,6 +6,9 @@
 
   <title>Almiya Part 2 AI</title>
 
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     * {
       box-sizing: border-box;
@@ -20,7 +23,7 @@
     }
 
     .header {
-      background: #ffffff;
+      background: white;
       padding: 18px 7%;
       display: flex;
       justify-content: space-between;
@@ -33,13 +36,45 @@
       font-weight: bold;
     }
 
-    .login-btn {
+    .header-buttons {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .login-btn,
+    .signup-btn,
+    .logout-btn {
       border: none;
-      background: #172033;
-      color: white;
       padding: 10px 18px;
       border-radius: 8px;
-      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .login-btn {
+      background: #172033;
+      color: white;
+    }
+
+    .signup-btn {
+      background: #e8edf5;
+      color: #172033;
+    }
+
+    .logout-btn {
+      background: #dc3545;
+      color: white;
+      display: none;
+    }
+
+    .user-email {
+      display: none;
+      font-size: 13px;
+      color: #667085;
     }
 
     .hero {
@@ -106,6 +141,78 @@
       font-size: 14px;
     }
 
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1000;
+    }
+
+    .modal-box {
+      background: white;
+      width: 100%;
+      max-width: 420px;
+      border-radius: 16px;
+      padding: 30px;
+      direction: rtl;
+    }
+
+    .modal-box h2 {
+      margin-bottom: 20px;
+    }
+
+    .modal-box input {
+      width: 100%;
+      padding: 13px;
+      margin-bottom: 12px;
+      border: 1px solid #d0d5dd;
+      border-radius: 8px;
+      font-size: 15px;
+      direction: ltr;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 13px;
+      background: #172033;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      margin-top: 5px;
+    }
+
+    .close-btn {
+      float: left;
+      border: none;
+      background: none;
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .switch-text {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 14px;
+      color: #667085;
+    }
+
+    .switch-text span {
+      color: #172033;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .message {
+      margin-top: 12px;
+      font-size: 14px;
+      text-align: center;
+    }
+
     @media (max-width: 700px) {
       .cards {
         grid-template-columns: 1fr;
@@ -118,75 +225,440 @@
       .header {
         padding: 15px 20px;
       }
+
+      .user-email {
+        display: none !important;
+      }
     }
   </style>
 </head>
 
 <body>
 
-  <header class="header">
-    <div class="logo">🎓 Almiya Part 2 AI</div>
-    <button class="login-btn" onclick="loginMessage()">Login</button>
-  </header>
+<header class="header">
 
-  <section class="hero">
-    <h1>Almiya Part 2</h1>
-    <p>امتحان کی تیاری کے لیے آپ کا AI Study Companion</p>
-  </section>
+  <div class="logo">
+    🎓 Almiya Part 2 AI
+  </div>
 
-  <section class="cards">
+  <div class="header-buttons">
 
-    <div class="card" onclick="featureMessage('Study with AI')">
-      <div class="icon">📚</div>
-      <h2>Study with AI</h2>
-      <p>اپنے نصاب کے مطابق موضوعات کو سمجھیں اور AI سے سوال کریں۔</p>
+    <span class="user-email" id="userEmail"></span>
+
+    <button
+      class="signup-btn"
+      id="signupButton"
+      onclick="openSignup()">
+      Sign Up
+    </button>
+
+    <button
+      class="login-btn"
+      id="loginButton"
+      onclick="openLogin()">
+      Login
+    </button>
+
+    <button
+      class="logout-btn"
+      id="logoutButton"
+      onclick="logout()">
+      Logout
+    </button>
+
+  </div>
+
+</header>
+
+
+<section class="hero">
+
+  <h1>Almiya Part 2</h1>
+
+  <p>
+    امتحان کی تیاری کے لیے آپ کا AI Study Companion
+  </p>
+
+</section>
+
+
+<section class="cards">
+
+  <div class="card" onclick="featureMessage('Study with AI')">
+    <div class="icon">📚</div>
+    <h2>Study with AI</h2>
+    <p>
+      اپنے نصاب کے مطابق موضوعات کو سمجھیں اور AI سے سوال کریں۔
+    </p>
+  </div>
+
+  <div class="card" onclick="featureMessage('MCQs Practice')">
+    <div class="icon">❓</div>
+    <h2>MCQs Practice</h2>
+    <p>
+      اپنے نصاب کے مطابق MCQs حل کریں اور اپنی تیاری چیک کریں۔
+    </p>
+  </div>
+
+  <div class="card" onclick="featureMessage('Questions Practice')">
+    <div class="icon">✍️</div>
+    <h2>Questions Practice</h2>
+    <p>
+      Short اور Long Questions کی practice کریں۔
+    </p>
+  </div>
+
+  <div class="card" onclick="featureMessage('Mock Test')">
+    <div class="icon">📝</div>
+    <h2>Mock Test</h2>
+    <p>
+      امتحان کی طرح مکمل Mock Test attempt کریں۔
+    </p>
+  </div>
+
+  <div class="card" onclick="featureMessage('My Progress')">
+    <div class="icon">📊</div>
+    <h2>My Progress</h2>
+    <p>
+      اپنی preparation، score اور weak areas دیکھیں۔
+    </p>
+  </div>
+
+  <div class="card" onclick="featureMessage('AI Tutor')">
+    <div class="icon">🤖</div>
+    <h2>AI Tutor</h2>
+    <p>
+      اپنے study material سے متعلق سوالات AI سے پوچھیں۔
+    </p>
+  </div>
+
+</section>
+
+
+<footer class="footer">
+  Almiya Part 2 AI • Exam Preparation Platform
+</footer>
+
+
+<!-- LOGIN / SIGNUP MODAL -->
+
+<div class="modal" id="authModal">
+
+  <div class="modal-box">
+
+    <button class="close-btn" onclick="closeAuth()">×</button>
+
+    <h2 id="authTitle">Student Login</h2>
+
+    <form id="authForm">
+
+      <input
+        type="email"
+        id="email"
+        placeholder="Email"
+        required>
+
+      <input
+        type="password"
+        id="password"
+        placeholder="Password"
+        minlength="6"
+        required>
+
+      <button
+        type="submit"
+        class="submit-btn"
+        id="submitButton">
+        Login
+      </button>
+
+    </form>
+
+    <div class="switch-text" id="switchText">
+      Account nahi hai?
+      <span onclick="switchToSignup()">Sign Up</span>
     </div>
 
-    <div class="card" onclick="featureMessage('MCQs Practice')">
-      <div class="icon">❓</div>
-      <h2>MCQs Practice</h2>
-      <p>اپنے نصاب کے مطابق MCQs حل کریں اور اپنی تیاری چیک کریں۔</p>
-    </div>
+    <div class="message" id="authMessage"></div>
 
-    <div class="card" onclick="featureMessage('Questions Practice')">
-      <div class="icon">✍️</div>
-      <h2>Questions Practice</h2>
-      <p>Short اور Long Questions کی practice کریں۔</p>
-    </div>
+  </div>
 
-    <div class="card" onclick="featureMessage('Mock Test')">
-      <div class="icon">📝</div>
-      <h2>Mock Test</h2>
-      <p>امتحان کی طرح مکمل Mock Test attempt کریں۔</p>
-    </div>
+</div>
 
-    <div class="card" onclick="featureMessage('My Progress')">
-      <div class="icon">📊</div>
-      <h2>My Progress</h2>
-      <p>اپنی preparation، score اور weak areas دیکھیں۔</p>
-    </div>
 
-    <div class="card" onclick="featureMessage('AI Tutor')">
-      <div class="icon">🤖</div>
-      <h2>AI Tutor</h2>
-      <p>اپنے study material سے متعلق سوالات AI سے پوچھیں۔</p>
-    </div>
+<script>
 
-  </section>
+  /* =========================================
+     SUPABASE CONFIGURATION
+     ========================================= */
 
-  <footer class="footer">
-    Almiya Part 2 AI • Exam Preparation Platform
-  </footer>
+  const SUPABASE_URL = "yvamlziszfilrireazln";
 
-  <script>
-    function featureMessage(feature) {
-      alert(feature + " کا module اگلے مرحلے میں activate کیا جائے گا۔");
+  const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_4IAA37WUem7q-41vZzHI6g_e8knsTm_";
+
+  const { createClient } = supabase;
+
+  const supabaseClient = createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+
+
+  /* =========================================
+     AUTH MODE
+     ========================================= */
+
+  let authMode = "login";
+
+
+  /* =========================================
+     OPEN LOGIN
+     ========================================= */
+
+  function openLogin() {
+
+    authMode = "login";
+
+    document.getElementById("authTitle").textContent =
+      "Student Login";
+
+    document.getElementById("submitButton").textContent =
+      "Login";
+
+    document.getElementById("switchText").innerHTML =
+      'Account nahi hai? <span onclick="switchToSignup()">Sign Up</span>';
+
+    document.getElementById("authMessage").textContent = "";
+
+    document.getElementById("authModal").style.display = "flex";
+  }
+
+
+  /* =========================================
+     OPEN SIGNUP
+     ========================================= */
+
+  function openSignup() {
+
+    authMode = "signup";
+
+    document.getElementById("authTitle").textContent =
+      "Create Student Account";
+
+    document.getElementById("submitButton").textContent =
+      "Sign Up";
+
+    document.getElementById("switchText").innerHTML =
+      'Already account hai? <span onclick="switchToLogin()">Login</span>';
+
+    document.getElementById("authMessage").textContent = "";
+
+    document.getElementById("authModal").style.display = "flex";
+  }
+
+
+  function switchToSignup() {
+    openSignup();
+  }
+
+
+  function switchToLogin() {
+    openLogin();
+  }
+
+
+  function closeAuth() {
+    document.getElementById("authModal").style.display = "none";
+  }
+
+
+  /* =========================================
+     LOGIN / SIGNUP
+     ========================================= */
+
+  document
+    .getElementById("authForm")
+    .addEventListener("submit", async function(event) {
+
+      event.preventDefault();
+
+      const email =
+        document.getElementById("email").value.trim();
+
+      const password =
+        document.getElementById("password").value;
+
+      const message =
+        document.getElementById("authMessage");
+
+      const submitButton =
+        document.getElementById("submitButton");
+
+      message.textContent = "";
+
+      submitButton.disabled = true;
+
+      if (authMode === "signup") {
+
+        const { data, error } =
+          await supabaseClient.auth.signUp({
+            email: email,
+            password: password
+          });
+
+        if (error) {
+
+          message.textContent =
+            error.message;
+
+          submitButton.disabled = false;
+
+          return;
+        }
+
+        message.textContent =
+          "Account create ho gaya. Agar email confirmation enabled hai to apni email check karein.";
+
+        submitButton.disabled = false;
+
+      } else {
+
+        const { data, error } =
+          await supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password
+          });
+
+        if (error) {
+
+          message.textContent =
+            error.message;
+
+          submitButton.disabled = false;
+
+          return;
+        }
+
+        message.textContent =
+          "Login successful!";
+
+        closeAuth();
+
+        updateUserInterface();
+
+        submitButton.disabled = false;
+      }
+
+    });
+
+
+  /* =========================================
+     LOGOUT
+     ========================================= */
+
+  async function logout() {
+
+    const { error } =
+      await supabaseClient.auth.signOut();
+
+    if (error) {
+
+      alert(error.message);
+
+      return;
     }
 
-    function loginMessage() {
-      alert("Student Login اگلے مرحلے میں Supabase کے ساتھ connect کیا جائے گا۔");
+    updateUserInterface();
+  }
+
+
+  /* =========================================
+     UPDATE UI
+     ========================================= */
+
+  async function updateUserInterface() {
+
+    const {
+      data: {
+        user
+      }
+    } = await supabaseClient.auth.getUser();
+
+    const loginButton =
+      document.getElementById("loginButton");
+
+    const signupButton =
+      document.getElementById("signupButton");
+
+    const logoutButton =
+      document.getElementById("logoutButton");
+
+    const userEmail =
+      document.getElementById("userEmail");
+
+
+    if (user) {
+
+      loginButton.style.display = "none";
+
+      signupButton.style.display = "none";
+
+      logoutButton.style.display = "block";
+
+      userEmail.style.display = "block";
+
+      userEmail.textContent =
+        user.email;
+
+    } else {
+
+      loginButton.style.display = "block";
+
+      signupButton.style.display = "block";
+
+      logoutButton.style.display = "none";
+
+      userEmail.style.display = "none";
+
+      userEmail.textContent = "";
     }
-  </script>
+
+  }
+
+
+  /* =========================================
+     FEATURE PLACEHOLDER
+     ========================================= */
+
+  function featureMessage(feature) {
+
+    alert(
+      feature +
+      " module abhi development mein hai."
+    );
+
+  }
+
+
+  /* =========================================
+     CHECK EXISTING SESSION
+     ========================================= */
+
+  updateUserInterface();
+
+
+  /* =========================================
+     AUTH STATE LISTENER
+     ========================================= */
+
+  supabaseClient.auth.onAuthStateChange(
+    function() {
+      updateUserInterface();
+    }
+  );
+
+</script>
 
 </body>
 </html>
