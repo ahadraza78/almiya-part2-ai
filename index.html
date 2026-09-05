@@ -230,6 +230,63 @@
         display: none !important;
       }
     }
+    .mcq-modal-box {
+  background: white;
+  width: 100%;
+  max-width: 650px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 16px;
+  padding: 30px;
+  direction: rtl;
+}
+
+.mcq-question {
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 1.8;
+  margin: 20px 0;
+}
+
+.mcq-option {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  margin: 10px 0;
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+  background: white;
+  text-align: right;
+  font-size: 16px;
+}
+
+.mcq-option.selected {
+  border: 2px solid #172033;
+}
+
+.mcq-result {
+  margin-top: 15px;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.mcq-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.mcq-actions button {
+  flex: 1;
+  padding: 13px;
+  border: none;
+  border-radius: 8px;
+  background: #172033;
+  color: white;
+  font-size: 15px;
+}
   </style>
 </head>
 
@@ -385,7 +442,19 @@
 
 </div>
 
+<!-- MCQ PRACTICE MODAL -->
+<div class="modal" id="mcqModal">
+  <div class="mcq-modal-box">
+    <button class="close-btn" onclick="closeMCQs()">×</button>
 
+    <h2>MCQs Practice</h2>
+
+    <div id="mcqContent" class="mcq-loading">
+      MCQs load ہو رہے ہیں...
+    </div>
+  </div>
+</div>
+  
 <script>
 
   /* =========================================
@@ -629,7 +698,242 @@ const SUPABASE_URL = "https://yvamlziszfilrireazln.supabase.co";
   /* =========================================
      FEATURE PLACEHOLDER
      ========================================= */
+let mcqList = [];
+let currentMcqIndex = 0;
+let selectedAnswer = null;
+let answerChecked = false;
 
+async function openMCQs() {
+  document.getElementById("mcqModal").style.display = "flex";
+
+  const content = document.getElementById("mcqContent");
+
+  content.innerHTML = `
+    <div class="mcq-loading">
+      MCQs load ہو رہے ہیں...
+    </div>
+  `;
+
+  selectedAnswer = null;
+  answerChecked = false;
+
+  const { data, error } = await supabaseClient
+    .from("mcqs")
+    .select("*")
+    .eq("book_id", 1)
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    content.innerHTML = `
+      <div class="mcq-result">
+        MCQs load نہیں ہو سکے۔
+        <br><br>
+        ${error.message}
+      </div>
+    `;
+
+    console.error("MCQ Error:", error);
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    content.innerHTML = `
+      <div class="mcq-result">
+        ابھی اس book کے لیے کوئی MCQ موجود نہیں۔
+      </div>
+    `;
+    return;
+  }
+
+  mcqList = data;
+  currentMcqIndex = 0;
+
+  showCurrentMCQ();
+}
+
+function showCurrentMCQ() {
+  const mcq = mcqList[currentMcqIndex];
+
+  if (!mcq) return;
+
+  selectedAnswer = null;
+  answerChecked = false;
+
+  const content = document.getElementById("mcqContent");
+
+  content.innerHTML = `
+    <div>
+      <small>
+        MCQ ${currentMcqIndex + 1} / ${mcqList.length}
+      </small>
+
+      <div class="mcq-question">
+        ${escapeHTML(mcq.question)}
+      </div>
+
+      <button class="mcq-option"
+        onclick="selectMCQOption('option_a', this)">
+        A) ${escapeHTML(mcq.option_a)}
+      </button>
+
+      <button class="mcq-option"
+        onclick="selectMCQOption('option_b', this)">
+        B) ${escapeHTML(mcq.option_b)}
+      </button>
+
+      <button class="mcq-option"
+        onclick="selectMCQOption('option_c', this)">
+        C) ${escapeHTML(mcq.option_c)}
+      </button>
+
+      <button class="mcq-option"
+        onclick="selectMCQOption('option_d', this)">
+        D) ${escapeHTML(mcq.option_d)}
+      </button>
+
+      <div id="mcqResult"></div>
+
+      <div class="mcq-actions">
+        <button onclick="checkMCQAnswer()">
+          Check Answer
+        </button>
+
+        <button onclick="nextMCQ()">
+          Next
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function selectMCQOption(option, button) {
+  if (answerChecked) return;
+
+  selectedAnswer = option;
+
+  document
+    .querySelectorAll(".mcq-option")
+    .forEach(btn => btn.classList.remove("selected"));
+
+  button.classList.add("selected");
+}
+
+function normalizeAnswer(answer) {
+  if (!answer) return "";
+
+  answer = answer.toString().toLowerCase().trim();
+
+  const map = {
+    "option 1": "option_a",
+    "option 2": "option_b",
+    "option 3": "option_c",
+    "option 4": "option_d",
+    "a": "option_a",
+    "b": "option_b",
+    "c": "option_c",
+    "d": "option_d",
+    "option a": "option_a",
+    "option b": "option_b",
+    "option c": "option_c",
+    "option d": "option_d"
+  };
+
+  return map[answer] || answer;
+}
+
+function checkMCQAnswer() {
+  if (!selectedAnswer) {
+    alert("پہلے ایک option منتخب کریں۔");
+    return;
+  }
+
+  if (answerChecked) return;
+
+  const mcq = mcqList[currentMcqIndex];
+
+  const correctAnswer = normalizeAnswer(
+    mcq.correct_answer
+  );
+
+  const result = document.getElementById("mcqResult");
+
+  answerChecked = true;
+
+  if (selectedAnswer === correctAnswer) {
+
+    result.innerHTML = `
+      <div class="mcq-result">
+        ✅ درست جواب!
+      </div>
+    `;
+
+  } else {
+
+    result.innerHTML = `
+      <div class="mcq-result">
+        ❌ غلط جواب۔
+        <br>
+        صحیح جواب: ${getAnswerLabel(correctAnswer)}
+      </div>
+    `;
+  }
+}
+
+function getAnswerLabel(answer) {
+
+  const labels = {
+    option_a: "A",
+    option_b: "B",
+    option_c: "C",
+    option_d: "D"
+  };
+
+  return labels[answer] || answer;
+}
+
+function nextMCQ() {
+
+  if (currentMcqIndex < mcqList.length - 1) {
+
+    currentMcqIndex++;
+
+    showCurrentMCQ();
+
+  } else {
+
+    document.getElementById("mcqContent").innerHTML = `
+      <div class="mcq-result">
+        🎉 تمام دستیاب MCQs مکمل ہو گئے۔
+        <br><br>
+
+        <button
+          class="submit-btn"
+          onclick="showCurrentMCQ()">
+          دوبارہ شروع کریں
+        </button>
+      </div>
+    `;
+  }
+}
+
+function closeMCQs() {
+
+  document.getElementById("mcqModal").style.display = "none";
+}
+
+function escapeHTML(value) {
+
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  return value.toString()
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
   function featureMessage(feature) {
 
     alert(
