@@ -308,6 +308,27 @@
   background: #fee2e2;
   color: #991b1b;
 }
+    .mcq-option.correct {
+  background: #d1fae5;
+  border: 2px solid #16a34a;
+  color: #166534;
+}
+
+.mcq-option.wrong {
+  background: #fee2e2;
+  border: 2px solid #dc2626;
+  color: #991b1b;
+}
+
+.mcq-result.correct-result {
+  background: #d1fae5;
+  color: #166534;
+}
+
+.mcq-result.wrong-result {
+  background: #fee2e2;
+  color: #991b1b;
+}
   </style>
 </head>
 
@@ -861,7 +882,6 @@ function normalizeAnswer(answer) {
 
   return map[answer] || answer;
 }
-
 function checkMCQAnswer() {
   if (!selectedAnswer) {
     alert("پہلے ایک option منتخب کریں۔");
@@ -872,18 +892,33 @@ function checkMCQAnswer() {
 
   const mcq = mcqList[currentMcqIndex];
 
-  const correctAnswer = normalizeAnswer(
-    mcq.correct_answer
-  );
+  const correctAnswer = normalizeAnswer(mcq.correct_answer);
 
   const result = document.getElementById("mcqResult");
 
   answerChecked = true;
 
+  const options = document.querySelectorAll(".mcq-option");
+
+  options.forEach(button => {
+    const option = button.getAttribute("onclick");
+
+    if (option.includes(correctAnswer)) {
+      button.classList.add("correct");
+    }
+
+    if (
+      option.includes(selectedAnswer) &&
+      selectedAnswer !== correctAnswer
+    ) {
+      button.classList.add("wrong");
+    }
+  });
+
   if (selectedAnswer === correctAnswer) {
 
     result.innerHTML = `
-      <div class="mcq-result">
+      <div class="mcq-result correct-result">
         ✅ درست جواب!
       </div>
     `;
@@ -891,15 +926,14 @@ function checkMCQAnswer() {
   } else {
 
     result.innerHTML = `
-      <div class="mcq-result">
+      <div class="mcq-result wrong-result">
         ❌ غلط جواب۔
-        <br>
+        <br><br>
         صحیح جواب: ${getAnswerLabel(correctAnswer)}
       </div>
     `;
   }
 }
-
 function getAnswerLabel(answer) {
 
   const labels = {
