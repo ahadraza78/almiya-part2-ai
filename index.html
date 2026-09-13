@@ -813,22 +813,26 @@ function showCurrentMCQ() {
         ${escapeHTML(mcq.question)}
       </div>
 
-      <button class="mcq-option"
-        onclick="selectMCQOption('option_a', this)">
+<button class="mcq-option"
+  data-option="option_a"
+  onclick="selectMCQOption('option_a', this)">
         A) ${escapeHTML(mcq.option_a)}
       </button>
 
       <button class="mcq-option"
+      data-option="option_b"
         onclick="selectMCQOption('option_b', this)">
         B) ${escapeHTML(mcq.option_b)}
       </button>
 
       <button class="mcq-option"
+      data-option="option_c"
         onclick="selectMCQOption('option_c', this)">
         C) ${escapeHTML(mcq.option_c)}
       </button>
 
       <button class="mcq-option"
+      data-option="option_d"
         onclick="selectMCQOption('option_d', this)">
         D) ${escapeHTML(mcq.option_d)}
       </button>
@@ -891,49 +895,33 @@ function checkMCQAnswer() {
   if (answerChecked) return;
 
   const mcq = mcqList[currentMcqIndex];
-
   const correctAnswer = normalizeAnswer(mcq.correct_answer);
-
-  const result = document.getElementById("mcqResult");
 
   answerChecked = true;
 
-  const options = document.querySelectorAll(".mcq-option");
+  // تمام options
+  const optionButtons = document.querySelectorAll(".mcq-option");
 
-  options.forEach(button => {
-    const option = button.getAttribute("onclick");
+  optionButtons.forEach(button => {
+    const option = button.dataset.option;
 
-    if (option.includes(correctAnswer)) {
+    // صحیح option ہمیشہ green
+    if (option === correctAnswer) {
       button.classList.add("correct");
     }
 
+    // اگر selected answer غلط ہے تو وہ red
     if (
-      option.includes(selectedAnswer) &&
+      option === selectedAnswer &&
       selectedAnswer !== correctAnswer
     ) {
       button.classList.add("wrong");
     }
+
+    // Answer check ہونے کے بعد options lock
+    button.disabled = true;
   });
-
-  if (selectedAnswer === correctAnswer) {
-
-    result.innerHTML = `
-      <div class="mcq-result correct-result">
-        ✅ درست جواب!
-      </div>
-    `;
-
-  } else {
-
-    result.innerHTML = `
-      <div class="mcq-result wrong-result">
-        ❌ غلط جواب۔
-        <br><br>
-        صحیح جواب: ${getAnswerLabel(correctAnswer)}
-      </div>
-    `;
-  }
-}
+} 
 function getAnswerLabel(answer) {
 
   const labels = {
