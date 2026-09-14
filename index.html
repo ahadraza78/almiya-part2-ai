@@ -863,9 +863,10 @@ function selectMCQOption(option, button) {
 
   button.classList.add("selected");
 }
-
 function normalizeAnswer(answer) {
-  if (!answer) return "";
+  if (answer === null || answer === undefined) {
+    return "";
+  }
 
   answer = answer.toString().toLowerCase().trim();
 
@@ -874,14 +875,31 @@ function normalizeAnswer(answer) {
     "option 2": "option_b",
     "option 3": "option_c",
     "option 4": "option_d",
+
+    "option_1": "option_a",
+    "option_2": "option_b",
+    "option_3": "option_c",
+    "option_4": "option_d",
+
+    "1": "option_a",
+    "2": "option_b",
+    "3": "option_c",
+    "4": "option_d",
+
     "a": "option_a",
     "b": "option_b",
     "c": "option_c",
     "d": "option_d",
+
     "option a": "option_a",
     "option b": "option_b",
     "option c": "option_c",
-    "option d": "option_d"
+    "option d": "option_d",
+
+    "option_a": "option_a",
+    "option_b": "option_b",
+    "option_c": "option_c",
+    "option_d": "option_d"
   };
 
   return map[answer] || answer;
