@@ -904,42 +904,42 @@ function normalizeAnswer(answer) {
 
   return map[answer] || answer;
 }
-function checkMCQAnswer() {
+  function checkMCQAnswer() {
   if (!selectedAnswer) {
-    alert("پہلے ایک option منتخب کریں۔");
+    alert("Pehle ek option select karein.");
     return;
   }
 
   if (answerChecked) return;
 
   const mcq = mcqList[currentMcqIndex];
+
   const correctAnswer = normalizeAnswer(mcq.correct_answer);
 
   answerChecked = true;
 
-  // تمام options
   const optionButtons = document.querySelectorAll(".mcq-option");
 
   optionButtons.forEach(button => {
     const option = button.dataset.option;
 
-    // صحیح option ہمیشہ green
+    // Pehle purani classes hatao
+    button.classList.remove("correct", "wrong");
+
+    // Sirf correct option GREEN
     if (option === correctAnswer) {
       button.classList.add("correct");
     }
 
-    // اگر selected answer غلط ہے تو وہ red
-    if (
-      option === selectedAnswer &&
-      selectedAnswer !== correctAnswer
-    ) {
+    // Baqi tamam options RED
+    else {
       button.classList.add("wrong");
     }
 
-    // Answer check ہونے کے بعد options lock
+    // Answer check ke baad lock
     button.disabled = true;
   });
-} 
+}
 function getAnswerLabel(answer) {
 
   const labels = {
